@@ -50,7 +50,7 @@ if (process.argv.length > 2) {
   db = await orbitdb.open(remoteDBAddress)
 
   setInterval(async () => {
-    await db.add(`hello world :: ${new Date().toISOString()}`)
+    await db.add(`Node ${process.env.NODE_NAME} says hello world :: ${new Date().toISOString()}`)
 
     let index = 0
     for await (const res of db.iterator()) {
@@ -67,11 +67,11 @@ if (process.argv.length > 2) {
   db.events.on('update', async (event) => {
     console.log('update', event)
 
-    let index = 0
-    for await (const res of db.iterator()) {
-      console.log(index, res.hash, res.value)
-      index++
-    }
+    // let index = 0
+    // for await (const res of db.iterator()) {
+    //   console.log(index, res.hash, res.value)
+    //   index++
+    // }
   })
 }
 
