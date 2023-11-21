@@ -1,9 +1,9 @@
 /**
- * A simple nodejs script which launches an orbitdb instance and creates a db 
+ * A simple nodejs script which launches an orbitdb instance and creates a db
  * with a single record.
- * 
+ *
  * To run from the terminal:
- * 
+ *
  * ```bash
  * node index.js
  * ```
@@ -14,6 +14,9 @@
  */
 import * as Ipfs from 'ipfs-core'
 import { createOrbitDB, OrbitDBAccessController } from '@orbitdb/core'
+import { EventEmitter } from 'events'
+
+EventEmitter.defaultMaxListeners = 100;
 
 const config = {
   Addresses: {
@@ -43,21 +46,32 @@ let db
 
 if (process.argv.length > 2) {
   const remoteDBAddress = process.argv.pop()
-  
+
   db = await orbitdb.open(remoteDBAddress)
 
-  await db.add('hello world 1')
+  setInterval(async () => {
+    await db.add(`hello world :: ${new Date().toISOString()}`)
 
-  for await (const res of db.iterator()) {
-    console.log(res)
-  }
+    let index = 0
+    for await (const res of db.iterator()) {
+      console.log(index, res.hash, res.value)
+      index++
+    }
+  }, 10000);
+
 } else {
   db = await orbitdb.open('nodejs', { AccessController: OrbitDBAccessController({ write: ['*'] }) })
-  
+
   console.log(db.address)
 
-  db.events.on('update', event => {
+  db.events.on('update', async (event) => {
     console.log('update', event)
+
+    let index = 0
+    for await (const res of db.iterator()) {
+      console.log(index, res.hash, res.value)
+      index++
+    }
   })
 }
 
