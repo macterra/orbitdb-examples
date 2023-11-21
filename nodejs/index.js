@@ -56,8 +56,11 @@ if (process.argv.length > 2) {
     for await (const res of db.iterator()) {
       console.log(index, res.hash, res.value)
       index++
+      if (index > 10) {
+        break
+      }
     }
-  }, 10000);
+  }, 3000);
 
 } else {
   db = await orbitdb.open('nodejs', { AccessController: OrbitDBAccessController({ write: ['*'] }) })
